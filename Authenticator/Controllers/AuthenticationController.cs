@@ -23,9 +23,33 @@ namespace Authenticator.Controllers
 
         // GET authentication
         [HttpGet]
-        public string Get()
+        public async Task<ActionResult<InviteModel>> GetAsync()
         {
-            return DateTime.UtcNow.ToLongDateString();
+            var invite = new InviteModel();
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Authorization
+                                     = new AuthenticationHeaderValue( 
+                                        _config.GetValue<string>("MeuIDCredentials:ApiToken"));
+
+                var opportunity = new
+                {
+                    opportunityId = _config.GetValue<string>("MeuIDCredentials:OpportunityId")
+                };
+
+                var opportunityContent = new StringContent(
+                    JsonSerializer.Serialize(opportunity), Encoding.UTF8, "application/json");
+
+                using (var response = await httpClient.PostAsync(
+                    "https://api-v3.idwall.co/meuid/invites/opportunity", opportunityContent))
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    invite = JsonSerializer.Deserialize<InviteModel>(responseBody);
+                }
+            }
+
+            return invite;
         }
 
         // POST authentication
@@ -50,8 +74,8 @@ namespace Authenticator.Controllers
                 {
                     authorization_code = authorizationModel.Code,
                     code_verifier = authorizationModel.CodeVerifier,
-                    client_id = _config.GetValue<string>("Credentials:ClientId"),
-                    client_secret = _config.GetValue<string>("Credentials:ClientSecret"),
+                    client_id = _config.GetValue<string>("MeuIDCredentials:ClientId"),
+                    client_secret = _config.GetValue<string>("MeuIDCredentials:ClientSecret"),
                     grant_type = "authorization_code"
                 };
 
@@ -84,7 +108,7 @@ namespace Authenticator.Controllers
         private static async Task<IdentityModel> GetUserData(IdentityModel identityModel, HttpClient httpClient, TokenModel token)
         {
             httpClient.DefaultRequestHeaders.Authorization
-                                     = new AuthenticationHeaderValue("Authorization", token.AccessToken);
+                                     = new AuthenticationHeaderValue(token.AccessToken);
 
             using (var response = await httpClient.GetAsync("https://api-v3.idwall.co/meuid/data"))
             {
