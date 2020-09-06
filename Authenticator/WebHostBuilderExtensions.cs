@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Authenticator
 {
@@ -17,7 +14,7 @@ namespace Authenticator
                 return builder;
             }
 
-            return builder.UseUrls($"http://+{port}");
+            return builder.UseUrls($"https://+{port}");
         }
     }
 }

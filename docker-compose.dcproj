@@ -3,9 +3,9 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>e5114c37-08b0-4c36-b174-66e4fe252828</ProjectGuid>
+    <ProjectGuid>5e6f4c9f-882e-4d46-9639-29a96d2c08c5</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/weatherforecast</DockerServiceUrl>
+    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/authentication</DockerServiceUrl>
     <DockerServiceName>authenticator</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
