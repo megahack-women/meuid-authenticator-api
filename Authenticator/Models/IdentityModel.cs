@@ -4,11 +4,18 @@ namespace Authenticator.Models
 {
     public class IdentityModel
     {
+        [JsonProperty(PropertyName = "data")]
         public Data Data { get; set; }
+
+        [JsonProperty(PropertyName = "token")]
+        public string Token { get; set; }
     }
 
     public class Personal
     {
+        [JsonProperty(PropertyName = "email")]
+        public string Email { get; set; }
+
         [JsonProperty(PropertyName = "phoneNumber")]
         public string PhoneNumber { get; set; }
     }

@@ -16,17 +16,5 @@ namespace Authenticator.Models
         /// </summary>
         [JsonProperty(PropertyName = "refresh_token")]
         public string RefreshToken { get; set; }
-
-        /// <summary>
-        /// Data de expiração do refresh token
-        /// </summary>
-        [JsonProperty(PropertyName = "expires_at")]
-        public DateTime ExpiresAt { get; set; }
-
-        /// <summary>
-        /// Tipo do token
-        /// </summary>
-        [JsonProperty(PropertyName = "token_type")]
-        public string TokenType { get; set; }
     }
 }

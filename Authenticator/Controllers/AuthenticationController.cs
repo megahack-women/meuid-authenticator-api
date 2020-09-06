@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Authenticator.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
@@ -22,23 +20,56 @@ namespace Authenticator.Controllers
             _config = config;
         }
 
-        // GET api/authentication
+        // GET authentication
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public async Task<ActionResult<IdentityModel>> GetAsync(string token)
         {
-            return new string[] { DateTime.Now.ToLongDateString() };
+            IdentityModel identityModel = null;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    var refreshTokenObject = new
+                    {
+                        refresh_token = token,
+                        grant_type = "refresh_token",
+                        client_id = _config.GetValue<string>("Credentials:ClientId"),
+                        client_secret = _config.GetValue<string>("Credentials:ClientSecret"),
+                    };
+
+                    var refreshTokenJson = new StringContent(
+                        JsonConvert.SerializeObject(refreshTokenObject), Encoding.UTF8, "application/json");
+
+                    var tokenModel = new TokenModel();
+
+                    using (var response = await httpClient.PostAsync("https://api-v3.idwall.co/token", refreshTokenJson))
+                    {
+                        var responseBody = await response.Content.ReadAsStringAsync();
+                        tokenModel = JsonConvert.DeserializeObject<TokenModel>(responseBody);
+                    }
+
+                    identityModel.Token = tokenModel.RefreshToken;
+
+                    using (var response = await httpClient.GetAsync("https://api-v3.idwall.co/meuid/data"))
+                    {
+                        var responseBody = await response.Content.ReadAsStringAsync();
+                        identityModel = JsonConvert.DeserializeObject<IdentityModel>(responseBody);
+                    }
+                }
+            }
+
+            return identityModel;
         }
 
-        // POST api/authentication
+        // POST authentication
         [HttpPost]
-        public async Task PostAsync([FromBody] AuthorizationModel authorizationModel)
+        public async Task<ActionResult<IdentityModel>> PostAsync([FromBody] AuthorizationModel authorizationModel)
         {
             var credentials = new
             {
-                ClientId = _config.GetValue<string>(
-                "Credentials:ClientId"),
-                ClientSecret = _config.GetValue<string>(
-                "Credentials:ClientSecret")
+                ClientId = _config.GetValue<string>("Credentials:ClientId"),
+                ClientSecret = _config.GetValue<string>("Credentials:ClientSecret")
             };
 
             using (var httpClient = new HttpClient())
@@ -55,26 +86,32 @@ namespace Authenticator.Controllers
                 var authorizationJson = new StringContent(
                     JsonConvert.SerializeObject(authorizationObject), Encoding.UTF8, "application/json");
 
-                var accessToken = string.Empty;
+                var tokenModel = new TokenModel();
 
                 using (var response = await httpClient.PostAsync("https://api-v3.idwall.co/token", authorizationJson))
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
-
-                    var tokenModel = JsonConvert.DeserializeObject<TokenModel>(responseBody);
-
-                    accessToken = tokenModel.AccessToken;
+                    tokenModel = JsonConvert.DeserializeObject<TokenModel>(responseBody);
                 }
 
-                httpClient.DefaultRequestHeaders.Authorization
-                         = new AuthenticationHeaderValue("Authorization", accessToken);
-
-                using (var response = await httpClient.GetAsync("https://api-v3.idwall.co/meuid/data"))
+                var identityModel = new IdentityModel
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
+                    Token = tokenModel.RefreshToken
+                };
 
-                    var identityModel = JsonConvert.DeserializeObject<IdentityModel>(responseBody);
+                if (!string.IsNullOrEmpty(tokenModel.AccessToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization
+                         = new AuthenticationHeaderValue("Authorization", tokenModel.AccessToken);
+
+                    using (var response = await httpClient.GetAsync("https://api-v3.idwall.co/meuid/data"))
+                    {
+                        var responseBody = await response.Content.ReadAsStringAsync();
+                        identityModel = JsonConvert.DeserializeObject<IdentityModel>(responseBody);
+                    }
                 }
+
+                return identityModel;
             }
         }
     }

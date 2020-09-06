@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Authenticator.Models
 {
@@ -8,14 +8,14 @@ namespace Authenticator.Models
         /// Código do processo de autorização do usuário MeuID. 
         /// Servirá de insumo para a obtenção dos dados pessoais.
         /// </summary>
-        [JsonProperty(PropertyName = "code")]
+        [JsonPropertyName("code")]
         public string Code { get; set; }
 
         /// <summary>
         /// Código verificador do processo de autorização. 
         /// Servirá de insumo para obtenção dos dados pessoais.
         /// </summary>
-        [JsonProperty(PropertyName = "code_verifier")]
+        [JsonPropertyName("code_verifier")]
         public string CodeVerifier { get; set; }
     }
 }
