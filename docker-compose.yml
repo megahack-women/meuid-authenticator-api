@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  authenticator:
+    image: ${DOCKER_REGISTRY-}authenticator
+    build:
+      context: .
+      dockerfile: Authenticator/Dockerfile
