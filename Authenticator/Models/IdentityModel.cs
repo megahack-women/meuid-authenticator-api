@@ -1,46 +1,47 @@
-﻿using Newtonsoft.Json;
+﻿
+using System.Text.Json.Serialization;
 
 namespace Authenticator.Models
 {
     public class IdentityModel
     {
-        [JsonProperty(PropertyName = "data")]
-        public Data Data { get; set; }
+        [JsonPropertyName("auth")]
+        public AuthorizationModel Auth { get; set; }
 
-        [JsonProperty(PropertyName = "token")]
-        public string Token { get; set; }
+        [JsonPropertyName("data")]
+        public Data Data { get; set; }
     }
 
     public class Personal
     {
-        [JsonProperty(PropertyName = "email")]
+        [JsonPropertyName("email")]
         public string Email { get; set; }
 
-        [JsonProperty(PropertyName = "phoneNumber")]
+        [JsonPropertyName("phoneNumber")]
         public string PhoneNumber { get; set; }
     }
 
     public class Document
     {
-        [JsonProperty(PropertyName = "name")]
+        [JsonPropertyName("name")]
         public string Nome { get; set; }
 
-        [JsonProperty(PropertyName = "numeroCpf")]
+        [JsonPropertyName("numeroCpf")]
         public string NumeroCpf { get; set; }
 
-        [JsonProperty(PropertyName = "numeroRg")]
+        [JsonPropertyName("numeroRg")]
         public string NumeroRg { get; set; }
 
-        [JsonProperty(PropertyName = "birthDate")]
+        [JsonPropertyName("birthDate")]
         public string DataNascimento { get; set; }
     }
 
     public class Data
     {
-        [JsonProperty(PropertyName = "personal")]
+        [JsonPropertyName("personal")]
         public Personal Personal { get; set; }
 
-        [JsonProperty(PropertyName = "document")]
+        [JsonPropertyName("document")]
         public Document Document { get; set; }
     }
 }
