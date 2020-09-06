@@ -20,6 +20,7 @@ namespace Authenticator
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UsePort();
                     webBuilder.UseStartup<Startup>();
                 });
     }
